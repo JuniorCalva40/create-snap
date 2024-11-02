@@ -1,5 +1,5 @@
 {
-  "name": "kick",
+  "name": "snap-create",
   "version": "0.0.1",
   "type": "module",
   "description": "A CLI tool for quickly creating modern Node.js projects using frameworks like Express and Fastify.",
@@ -9,13 +9,16 @@
     "example": "examples"
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc && node dist/index.js",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "CLI"
+    "CLI",
+    "express",
+    "fastify",
+    "framework"
   ],
   "author": "Junior Calva",
   "license": "MIT",
