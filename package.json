@@ -3,7 +3,7 @@
   "bin": {
     "create-snap": "dist/index.js"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "description": "A CLI tool for quickly creating modern Node.js projects using frameworks like Express and Fastify.",
   "main": "dist/index.js",

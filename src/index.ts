@@ -138,8 +138,6 @@ const init = async () => {
 
   const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
 
-  console.log(pkgInfo);
-
   //*FIX FOR PRODUCTION RELATIVE PATH FROM dist
   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
@@ -163,9 +161,17 @@ const init = async () => {
   };
 
   const files = fs.readdirSync(templateDir);
-  for (const file of files.filter((f) => f !== 'package.json')) {
+  for (const file of files.filter(
+    (f) => f !== 'package.json' && f !== 'package-lock.json'
+  )) {
     write(file);
   }
+
+  const pkgPath = path.join(templateDir, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  pkg.name = groups.name;
+
+  write('package.json', JSON.stringify(pkg, null, 2) + '\n');
 
   outro(bgBlue(` You're all set! :) `));
 };
