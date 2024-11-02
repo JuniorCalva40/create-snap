@@ -1,7 +1,7 @@
 {
   "name": "create-snap",
   "bin": {
-    "create-snap": "dist/index.js"
+    "create-snap": "index.js"
   },
   "version": "0.0.3",
   "type": "module",
