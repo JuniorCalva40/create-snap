@@ -131,6 +131,7 @@ const init = async () => {
 
   const targetDir = path.join(cwd, groups.name || DEFAULT_TARGET_DIR);
   let framework = groups.selectedFramework;
+  let frameworkTest = groups.selectedTestFramework;
   const useTypescript = groups.useTypescript as boolean;
 
   framework = `${framework}-${useTypescript ? 'ts' : 'js'}`;
@@ -173,8 +174,9 @@ init();
 
 function getAgentUserInfo(userAgent?: string) {
   if (!userAgent) return undefined;
-
   const [pkgSpec, nodeSpec] = userAgent.split(' ');
+
+  if (!pkgSpec || !nodeSpec) return undefined;
   const [pkgManager, pkgVersion] = pkgSpec.split('/');
   const [node, nodeVersion] = nodeSpec.split('/');
 
