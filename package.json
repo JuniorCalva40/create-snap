@@ -1,6 +1,9 @@
 {
   "name": "create-snap",
-  "version": "0.0.4",
+  "version": "0.0.5-beta",
+  "bin": {
+    "create-snap": "index.js"
+  },
   "type": "module",
   "description": "A CLI tool for quickly creating modern Node.js projects using frameworks like Express and Fastify.",
   "main": "dist/index.js",
