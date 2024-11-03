@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import colors from 'picocolors';
 import path from 'node:path';
 import { cancel, group, intro, outro, select, text } from '@clack/prompts';
@@ -111,7 +112,7 @@ const init = async () => {
     const useTypescript = groups.useTypescript;
     framework = `${framework}-${useTypescript ? 'ts' : 'js'}`;
     const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
-    const templateDir = path.resolve(cwd, `./templates/${framework}`);
+    const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `templates/${framework}`);
     console.log(`Template Dir ${green(templateDir)}\n Root Dir ${cwd}`);
     const renameFiles = {
         _gitignore: '.gitignore',

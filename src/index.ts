@@ -9,7 +9,7 @@ const { white, bgBlue, gray, green, yellow } = colors;
 enum FrameworkName {
   express = 'express',
   fastify = 'fastify',
-  hapi = 'hapi',
+  koa = 'koa',
 }
 
 //Frameworks Available Test
@@ -40,8 +40,8 @@ const Frameworks: Framework[] = [
     color: white,
   },
   {
-    value: FrameworkName.hapi,
-    label: 'Hapi',
+    value: FrameworkName.koa,
+    label: 'Koa',
     color: white,
   },
 ];
@@ -138,9 +138,11 @@ const init = async () => {
 
   const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
 
-  const templateDir = path.resolve(cwd, `./templates/${framework}`);
-
-  console.log(`Template Dir ${green(templateDir)}\n Root Dir ${cwd}`);
+  const templateDir = path.resolve(
+    fileURLToPath(import.meta.url),
+    '../..',
+    `templates/${framework}`
+  );
 
   const renameFiles: Record<string, string | undefined> = {
     _gitignore: '.gitignore',
