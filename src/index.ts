@@ -138,17 +138,15 @@ const init = async () => {
 
   const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
 
-  //*FIX FOR PRODUCTION RELATIVE PATH FROM dist
-  const templateDir = path.resolve(
-    fileURLToPath(import.meta.url),
-    '../templates',
-    `${framework}`
-  );
+  const templateDir = path.resolve(cwd, `./templates/${framework}`);
+
+  console.log(`Template Dir ${green(templateDir)}\n Root Dir ${cwd}`);
 
   const renameFiles: Record<string, string | undefined> = {
     _gitignore: '.gitignore',
     _env: '.env',
     '_eslint.config.js': 'eslint.config.js',
+    '_eslint.config.mjs': 'eslint.config.js',
   };
 
   const write = (file: string, content?: string) => {
