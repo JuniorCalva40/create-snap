@@ -70,7 +70,7 @@ const init = async () => {
             },
         }),
         selectedFramework: ({ results }) => select({
-            message: 'What is your age?',
+            message: 'Select a framework:',
             options: Frameworks.map((f) => {
                 return {
                     value: f.value,
@@ -79,7 +79,7 @@ const init = async () => {
             }),
         }),
         useTypescript: ({ results }) => select({
-            message: 'Use TypeScript?',
+            message: 'Do you want to use TypeScript?',
             options: [
                 {
                     value: true,
@@ -112,7 +112,8 @@ const init = async () => {
     const useTypescript = groups.useTypescript;
     framework = `${framework}-${useTypescript ? 'ts' : 'js'}`;
     const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
-    const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `templates/${framework}`);
+    const templateDir = path.resolve(fileURLToPath(import.meta.url), '..', '..', '..', `templates/${framework}`);
+    console.log(templateDir);
     const renameFiles = {
         _gitignore: '.gitignore',
         _env: '.env',

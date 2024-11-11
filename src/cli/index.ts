@@ -88,7 +88,7 @@ const init = async () => {
         }),
       selectedFramework: ({ results }) =>
         select({
-          message: 'What is your age?',
+          message: 'Select a framework:',
           options: Frameworks.map((f) => {
             return {
               value: f.value,
@@ -98,7 +98,21 @@ const init = async () => {
         }),
       useTypescript: ({ results }) =>
         select({
-          message: 'Use TypeScript?',
+          message: 'Do you want to use TypeScript?',
+          options: [
+            {
+              value: true,
+              label: 'Yes',
+            },
+            {
+              value: false,
+              label: 'No',
+            },
+          ],
+        }),
+      useEslint: ({ results }) =>
+        select({
+          message: 'Do you want to use Eslint?',
           options: [
             {
               value: true,
@@ -121,6 +135,7 @@ const init = async () => {
           }),
         }),
     },
+
     {
       onCancel: () => {
         cancel('Operation cancelled.');
@@ -140,9 +155,13 @@ const init = async () => {
 
   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
-    '../..',
+    '..',
+    '..',
+    '..',
     `templates/${framework}`
   );
+
+  console.log(templateDir);
 
   const renameFiles: Record<string, string | undefined> = {
     _gitignore: '.gitignore',
