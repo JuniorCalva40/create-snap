@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import colors from 'picocolors';
 import path from 'node:path';
-import { cancel, group, intro, outro, select, text } from '@clack/prompts';
+import { cancel, group, intro, outro, select, text, } from '@clack/prompts';
+import { getAgentUserInfo } from '../helpers/getAgentUserInfo.js';
 const { white, bgBlue, gray, green, yellow } = colors;
 var FrameworkName;
 (function (FrameworkName) {
@@ -56,14 +57,14 @@ const FrameworksTest = [
         color: gray,
     },
 ];
-const DEFAULT_TARGET_DIR = 'snap-project';
-const cwd = process.cwd();
+const DEFAULT_NAME = 'my-app';
+const CURRENT_DIR = process.cwd();
 const init = async () => {
     intro(bgBlue(' create-my-app '));
     const groups = await group({
         name: () => text({
             message: 'What is the name of your app?',
-            placeholder: 'project-name',
+            placeholder: 'my-app',
             validate(value) {
                 if (value.length === 0)
                     return 'Please enter a name for your app.';
@@ -106,14 +107,13 @@ const init = async () => {
             process.exit(0);
         },
     });
-    const targetDir = path.join(cwd, groups.name || DEFAULT_TARGET_DIR);
+    const targetDir = path.join(CURRENT_DIR, groups.name || DEFAULT_NAME);
     let framework = groups.selectedFramework;
     let frameworkTest = groups.selectedTestFramework;
     const useTypescript = groups.useTypescript;
     framework = `${framework}-${useTypescript ? 'ts' : 'js'}`;
     const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
     const templateDir = path.resolve(fileURLToPath(import.meta.url), '..', '..', '..', `templates/${framework}`);
-    console.log(templateDir);
     const renameFiles = {
         _gitignore: '.gitignore',
         _env: '.env',
@@ -130,26 +130,68 @@ const init = async () => {
         }
     };
     const files = fs.readdirSync(templateDir);
-    for (const file of files.filter((f) => f !== 'package.json' && f !== 'package-lock.json')) {
+    for (const file of files.filter((f) => f !== 'package.json')) {
         write(file);
     }
     const pkgPath = path.join(templateDir, 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    pkg.name = groups.name;
-    write('package.json', JSON.stringify(pkg, null, 2) + '\n');
+    const newPackageJson = {
+        name: groups.name,
+        version: '0.1.0',
+        type: 'module',
+        private: true,
+        scripts: {},
+        author: '',
+        license: 'ISC',
+        dependencies: {},
+        devDependencies: {},
+    };
+    if (groups.useTypescript === false) {
+        newPackageJson.scripts = {
+            start: 'node src/index.js',
+            dev: 'node --watch src/index.js',
+            lint: 'eslint',
+        };
+        newPackageJson.dependencies = {
+            dotenv: '^16.4.5',
+        };
+        newPackageJson.devDependencies = {
+            '@eslint/js': '^9.13.0',
+            eslint: '^9.13.0',
+            globals: '^15.11.0',
+        };
+    }
+    if (groups.useTypescript) {
+        newPackageJson.scripts = {
+            build: 'tsc',
+            start: 'node dist/index.js',
+            dev: 'tsx --watch src/index.ts',
+            lint: 'eslint',
+        };
+        newPackageJson.dependencies = {
+            dotenv: '^16.4.5',
+        };
+        newPackageJson.devDependencies = {
+            '@eslint/js': '^9.13.0',
+            '@types/dotenv': '^6.1.1',
+            '@types/express': '^5.0.0',
+            tsx: '^4.19.2',
+            typescript: '^5.6.3',
+            eslint: '^9.13.0',
+            globals: '^15.11.0',
+            'typescript-eslint': '^8.12.2',
+        };
+    }
+    if (groups.selectedFramework === 'express') {
+        newPackageJson.dependencies = {
+            ...newPackageJson.dependencies,
+            express: '^4.21.1',
+        };
+    }
+    write('package.json', JSON.stringify(newPackageJson, null, 2) + '\n');
     outro(bgBlue(` You're all set! :) `));
 };
 init();
-function getAgentUserInfo(userAgent) {
-    if (!userAgent)
-        return undefined;
-    const [pkgSpec, nodeSpec] = userAgent.split(' ');
-    if (!pkgSpec || !nodeSpec)
-        return undefined;
-    const [pkgManager, pkgVersion] = pkgSpec.split('/');
-    const [node, nodeVersion] = nodeSpec.split('/');
-    return { pkgManager, pkgVersion, node, nodeVersion };
-}
 function copy(src, dest) {
     const stat = fs.statSync(src);
     if (stat.isDirectory()) {
