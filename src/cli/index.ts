@@ -2,92 +2,55 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import colors from 'picocolors';
 import path from 'node:path';
-import {
-  cancel,
-  group,
-  groupMultiselect,
-  intro,
-  outro,
-  select,
-  text,
-} from '@clack/prompts';
+import { cancel, group, intro, outro, select, text } from '@clack/prompts';
 import { getAgentUserInfo } from '../helpers/getAgentUserInfo.js';
+import { TITLE, cwd } from '../helpers/constants.js';
+
 const { white, bgBlue, gray, green, yellow } = colors;
 
-// Frameworks Available Support
-enum FrameworkName {
-  express = 'express',
-  fastify = 'fastify',
-  koa = 'koa',
-}
-
-//Frameworks Available Test
-enum FrameworkNameTest {
-  jest = 'jest',
-  mocha = 'mocha',
-  vitest = 'vitest',
-  none = 'none',
-}
-
-type AllFrameworkNames = FrameworkName | FrameworkNameTest;
-
 interface Framework {
-  value: AllFrameworkNames;
-  label: string;
+  value: string;
   color: (input: string) => string;
 }
 
+//FrameWorks Supported
 const Frameworks: Framework[] = [
   {
-    value: FrameworkName.express,
-    label: 'Express',
+    value: 'Express',
     color: white,
   },
   {
-    value: FrameworkName.fastify,
-    label: 'Fastify',
+    value: 'Fastify',
     color: white,
   },
   {
-    value: FrameworkName.koa,
-    label: 'Koa',
+    value: 'koa',
     color: white,
   },
 ];
 
 const FrameworksTest: Framework[] = [
   {
-    value: FrameworkNameTest.vitest,
-    label: 'Vitest',
+    value: 'Vitest',
     color: yellow,
   },
   {
-    value: FrameworkNameTest.jest,
-    label: 'Jest',
+    value: 'Jest',
     color: green,
   },
   {
-    value: FrameworkNameTest.mocha,
-    label: 'Mocha',
-    color: white,
-  },
-  {
-    value: FrameworkNameTest.none,
-    label: 'None',
+    value: 'None',
     color: gray,
   },
 ];
 
-const DEFAULT_NAME = 'my-app';
-const CURRENT_DIR = process.cwd();
-
 //Function prompts CLI
 const init = async () => {
-  intro(bgBlue(' create-my-app '));
+  intro(bgBlue(TITLE));
 
-  const groups = await group(
+  const responses = await group(
     {
-      name: () =>
+      nameApp: () =>
         text({
           message: 'What is the name of your app?',
           placeholder: 'my-app',
@@ -95,13 +58,13 @@ const init = async () => {
             if (value.length === 0) return 'Please enter a name for your app.';
           },
         }),
-      selectedFramework: ({ results }) =>
+      selectedframework: ({ results }) =>
         select({
           message: 'Select a framework:',
           options: Frameworks.map((f) => {
             return {
               value: f.value,
-              label: f.color(f.label),
+              label: f.color(f.value),
             };
           }),
         }),
@@ -119,13 +82,13 @@ const init = async () => {
             },
           ],
         }),
-      selectedTestFramework: ({ results }) =>
+      testFramework: ({ results }) =>
         select({
           message: 'Pick a framework for Test .',
           options: FrameworksTest.map((f) => {
             return {
               value: f.value,
-              label: f.color(f.label),
+              label: f.color(f.value),
             };
           }),
         }),
@@ -139,15 +102,13 @@ const init = async () => {
     }
   );
 
-  const targetDir = path.join(CURRENT_DIR, groups.name || DEFAULT_NAME);
-  let framework = groups.selectedFramework;
-  let frameworkTest = groups.selectedTestFramework;
-  const useTypescript = groups.useTypescript as boolean;
+  let framework = responses.selectedframework as string;
+  let testFramework = responses.testFramework as string;
+  let useTypescript = responses.useTypescript as boolean;
 
-  framework = `${framework}-${useTypescript ? 'ts' : 'js'}`;
+  framework = `${framework.toLocaleLowerCase()}-${useTypescript ? 'ts' : 'js'}`;
 
-  const pkgInfo = getAgentUserInfo(process.env.npm_config_user_agent);
-
+  const targetDir = path.join(cwd, responses.nameApp);
   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
     '..',
@@ -173,70 +134,84 @@ const init = async () => {
   };
 
   const files = fs.readdirSync(templateDir);
-  for (const file of files.filter((f) => f !== 'package.json')) {
-    write(file);
-  }
+  console.log(files);
+
+  // for (const file of files.filter((f) => f !== 'package.json')) {
+  //   write(file);
+  // }
 
   //Get Package Json and parser Object.
-  const pkgPath = path.join(templateDir, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  // const pkgPath = path.join(templateDir, 'package.json');
+  // const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
 
-  const newPackageJson = {
-    name: groups.name,
-    version: '0.1.0',
-    type: 'module',
-    private: true,
-    scripts: {},
-    author: '',
-    license: 'ISC',
-    dependencies: {},
-    devDependencies: {},
-  };
+  // const newPackageJson = {
+  //   name: groups.name,
+  //   version: '0.1.0',
+  //   type: 'module',
+  //   private: true,
+  //   scripts: {},
+  //   author: '',
+  //   license: 'ISC',
+  //   dependencies: {},
+  //   devDependencies: {},
+  // };
 
-  if (groups.useTypescript === false) {
-    newPackageJson.scripts = {
-      start: 'node src/index.js',
-      dev: 'node --watch src/index.js',
-      lint: 'eslint',
-    };
-    newPackageJson.dependencies = {
-      dotenv: '^16.4.5',
-    };
-    newPackageJson.devDependencies = {
-      '@eslint/js': '^9.13.0',
-      eslint: '^9.13.0',
-      globals: '^15.11.0',
-    };
-  }
-  if (groups.useTypescript) {
-    newPackageJson.scripts = {
-      build: 'tsc',
-      start: 'node dist/index.js',
-      dev: 'tsx --watch src/index.ts',
-      lint: 'eslint',
-    };
-    newPackageJson.dependencies = {
-      dotenv: '^16.4.5',
-    };
-    newPackageJson.devDependencies = {
-      '@eslint/js': '^9.13.0',
-      '@types/dotenv': '^6.1.1',
-      '@types/express': '^5.0.0',
-      tsx: '^4.19.2',
-      typescript: '^5.6.3',
-      eslint: '^9.13.0',
-      globals: '^15.11.0',
-      'typescript-eslint': '^8.12.2',
-    };
-  }
-  if (groups.selectedFramework === 'express') {
-    newPackageJson.dependencies = {
-      ...newPackageJson.dependencies,
-      express: '^4.21.1',
-    };
-  }
+  // if (groups.useTypescript === false) {
+  //   newPackageJson.scripts = {
+  //     start: 'node src/index.js',
+  //     dev: 'node --watch src/index.js',
+  //     lint: 'eslint',
+  //   };
+  //   newPackageJson.dependencies = {
+  //     dotenv: '^16.4.5',
+  //   };
+  //   newPackageJson.devDependencies = {
+  //     '@eslint/js': '^9.13.0',
+  //     eslint: '^9.13.0',
+  //     globals: '^15.11.0',
+  //   };
+  // }
+  // if (groups.useTypescript) {
+  //   newPackageJson.scripts = {
+  //     build: 'tsc',
+  //     start: 'node dist/index.js',
+  //     dev: 'tsx --watch src/index.ts',
+  //     lint: 'eslint',
+  //   };
+  //   newPackageJson.dependencies = {
+  //     dotenv: '^16.4.5',
+  //   };
+  //   newPackageJson.devDependencies = {
+  //     '@eslint/js': '^9.13.0',
+  //     '@types/dotenv': '^6.1.1',
+  //     '@types/express': '^5.0.0',
+  //     tsx: '^4.19.2',
+  //     typescript: '^5.6.3',
+  //     eslint: '^9.13.0',
+  //     globals: '^15.11.0',
+  //     'typescript-eslint': '^8.12.2',
+  //   };
+  // }
+  // if (groups.selectedFramework === 'express') {
+  //   newPackageJson.dependencies = {
+  //     ...newPackageJson.dependencies,
+  //     express: '^4.21.1',
+  //   };
+  // }
+  // if (groups.selectedTestFramework === 'jest') {
+  //   newPackageJson.scripts = {
+  //     ...newPackageJson.scripts,
+  //     test: 'jest',
+  //   };
+  //   newPackageJson.devDependencies = {
+  //     ...newPackageJson.devDependencies,
+  //     jest: '^29.7.0',
+  //     '@types/jest': '^29.5.12',
+  //     'ts-jest': '^29.1.2',
+  //   };
+  // }
 
-  write('package.json', JSON.stringify(newPackageJson, null, 2) + '\n');
+  // write('package.json', JSON.stringify(newPackageJson, null, 2) + '\n');
 
   outro(bgBlue(` You're all set! :) `));
 };
