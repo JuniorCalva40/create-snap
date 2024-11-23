@@ -1,17 +1,13 @@
 {
-  "name": "express",
-  "private": "true",
-  "version": "0.0.0",
+  "name": "express-new",
+  "version": "0.0.1",
   "type": "module",
-  "description": "App express JS",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "lint": "eslint ."
+    "dev": "node --watch src/index.js",
+    "lint": "eslint"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.21.1"
@@ -19,7 +15,6 @@
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "eslint": "^9.13.0",
-    "globals": "^15.11.0",
-    "nodemon": "^3.1.7"
+    "globals": "^15.11.0"
   }
 }

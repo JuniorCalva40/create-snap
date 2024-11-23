@@ -2,13 +2,14 @@ import express from 'express';
 import 'dotenv/config';
 
 const app = express();
+const PORT = process.env.PORT;
 
-app.get('/', (req, res) => {
-  res.send('Hello from Server');
+app.get('/', (_req, res) => {
+  res.send('Hello from Server Express :)');
 });
 
-app.listen(3000, () => {
-  console.log(
-    `Server started on port http://localhost:\x1b[34m${process.env.PORT}\x1b[0m`
-  );
+const server = app.listen(PORT, () => {
+  console.log(`Server started on port http://localhost:${PORT}`);
 });
+
+export { app, server };

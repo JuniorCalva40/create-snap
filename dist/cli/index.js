@@ -1,40 +1,50 @@
-import { fileURLToPath } from 'node:url';
 import colors from 'picocolors';
-import path from 'node:path';
 import { cancel, group, intro, outro, select, text } from '@clack/prompts';
-import { TITLE, cwd } from '../helpers/constants.js';
+import { TITLE } from '../helpers/constants.js';
+import { createApp } from '../helpers/createApp.js';
 const { white, bgBlue, gray, green, yellow } = colors;
 const Frameworks = [
     {
-        value: 'Express',
+        value: 'express',
+        label: 'Express',
         color: white,
     },
     {
-        value: 'Fastify',
+        value: 'fastify',
+        label: 'Fastify',
         color: white,
     },
     {
         value: 'koa',
+        label: 'Koa',
         color: white,
     },
 ];
 const FrameworksTest = [
     {
-        value: 'Vitest',
+        value: 'vitest',
+        label: 'Vitest',
         color: yellow,
     },
     {
-        value: 'Jest',
+        value: 'jest',
+        label: 'Jest',
         color: green,
     },
     {
-        value: 'None',
+        value: 'ava',
+        label: 'Ava',
+        color: white,
+    },
+    {
+        value: 'none',
+        label: 'None',
         color: gray,
     },
 ];
 const init = async () => {
     intro(bgBlue(TITLE));
-    const { nameApp, framework, testFramework, useTypescript } = await group({
+    const { nameApp, language, framework, testFramework } = await group({
         nameApp: () => text({
             message: 'What is the name of your app?',
             placeholder: 'my-app',
@@ -44,24 +54,24 @@ const init = async () => {
             },
         }),
         framework: ({ results }) => select({
-            message: 'Select a framework:',
+            message: 'Select a framework: ',
             options: Frameworks.map((f) => {
                 return {
                     value: f.value,
-                    label: f.color(f.value),
+                    label: f.color(f.label),
                 };
             }),
         }),
-        useTypescript: ({ results }) => select({
-            message: 'Do you want to use TypeScript?',
+        language: ({ results }) => select({
+            message: 'Select your language:',
             options: [
                 {
-                    value: true,
-                    label: 'Yes',
+                    value: 'ts',
+                    label: 'TypeScript',
                 },
                 {
-                    value: false,
-                    label: 'No',
+                    value: 'js',
+                    label: 'JavaScript',
                 },
             ],
         }),
@@ -70,7 +80,7 @@ const init = async () => {
             options: FrameworksTest.map((f) => {
                 return {
                     value: f.value,
-                    label: f.color(f.value),
+                    label: f.color(f.label),
                 };
             }),
         }),
@@ -80,10 +90,13 @@ const init = async () => {
             process.exit(0);
         },
     });
-    const targetDir = path.join(cwd, nameApp);
-    console.log(targetDir);
-    const templateDir = path.resolve(fileURLToPath(import.meta.url), '..', '..', '..', `templates/${framework}`);
-    console.log(templateDir);
+    const config = {
+        nameApp,
+        language: language,
+        framework: framework,
+        testFramework: testFramework,
+    };
+    createApp(config);
     outro(bgBlue(` You're all set! :) `));
 };
 init();

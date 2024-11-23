@@ -11,6 +11,7 @@
     "noUncheckedIndexedAccess": true,
     "removeComments": true
   },
+
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "templates"]
+  "exclude": ["node_modules", "templates", "dist", "src/interfaces"]
 }
