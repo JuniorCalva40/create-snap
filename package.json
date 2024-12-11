@@ -12,9 +12,9 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "dev": "tsx src/cli/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "npm run clean && tsc",
-    "start": "node dist/cli/index.js",
+    "start": "node dist/index.js",
     "test": "vitest"
   },
   "keywords": [

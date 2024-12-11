@@ -4,12 +4,8 @@ import { cwd, __dirname } from './constants.js';
 import { ProjectConfig } from '../interfaces/index.js';
 import { createPackageJson } from './utils.js';
 
-export const createApp = ({
-  language,
-  framework,
-  nameApp,
-  testFramework,
-}: ProjectConfig) => {
+export const createApp = (opts: ProjectConfig) => {
+  const { framework, language, nameApp, testFramework } = opts;
   const targetDir = path.join(cwd, nameApp);
   const templateDir = path.resolve(
     __dirname,
@@ -18,18 +14,30 @@ export const createApp = ({
     `templates/${framework}-${language}`
   );
 
-  const renameFiles: Record<string, string | undefined> = {
+  if (!fs.existsSync(templateDir)) {
+    throw new Error(`Template not found: ${templateDir}`);
+  }
+
+  initTargetDir(targetDir);
+
+  const renameFiles: Record<string, string> = {
     _gitignore: '.gitignore',
     _env: '.env',
     '_eslint.config.js': 'eslint.config.js',
   };
 
+  const renameFile = (file: string) => renameFiles[file] ?? file;
+
   const write = (file: string, content?: string) => {
-    const targetPath = path.join(targetDir, renameFiles[file] ?? file);
-    if (content) {
-      fs.writeFileSync(targetPath, content);
-    } else {
-      copy(path.join(templateDir, file), targetPath);
+    const targetPath = path.join(targetDir, renameFile(file));
+    try {
+      if (content) {
+        fs.writeFileSync(targetPath, content);
+      } else {
+        copy(path.join(templateDir, file), targetPath);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -38,17 +46,16 @@ export const createApp = ({
     write(file);
   }
 
-  const newPkgJson = createPackageJson(templateDir, {
-    framework,
-    language,
-    nameApp,
-    testFramework,
-  });
-
-  write('package.json', newPkgJson);
+  write('package.json', createPackageJson(templateDir, opts));
 };
 
-function copy(src: string, dest: string) {
+function initTargetDir(dir: string): void {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+function copy(src: string, dest: string): void {
   const stat = fs.statSync(src);
   if (stat.isDirectory()) {
     copyDir(src, dest);
@@ -57,7 +64,7 @@ function copy(src: string, dest: string) {
   }
 }
 
-function copyDir(srcDir: string, destDir: string) {
+function copyDir(srcDir: string, destDir: string): void {
   fs.mkdirSync(destDir, { recursive: true });
   for (const file of fs.readdirSync(srcDir)) {
     const srcFile = path.resolve(srcDir, file);

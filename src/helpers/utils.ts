@@ -26,7 +26,6 @@ export const createPackageJson = (
   const pkgPath = path.join(templateDir, 'package.json');
   let pkg: PackageJson = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
 
-  const info = getAgentUserInfo(process.env.npm_config_user_agent);
   pkg.name = options.nameApp;
 
   if (options.testFramework === 'none') {
