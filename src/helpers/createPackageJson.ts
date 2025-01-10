@@ -5,7 +5,6 @@ import type { PackageJson, ProjectConfig } from '../interfaces/index.js';
 const DEPENDENCIES = {
   vitestJS: {
     vitest: '^2.1.4',
-    supertest: '^7.0.0',
   },
   jestJS: {
     '@swc/core': '^1.9.1',
@@ -52,25 +51,9 @@ export const createPackageJson = (
     );
   }
 
-  if (options.framework === 'fastify') {
-    const { supertest, ...filteredDependencies } = dependencies;
-    pkg.devDependencies = {
-      ...pkg.devDependencies,
-      ...filteredDependencies,
-    };
-  } else {
-    pkg.devDependencies = {
-      ...pkg.devDependencies,
-      ...dependencies,
-    };
-  }
-
-  pkg.scripts = {
-    ...pkg.scripts,
-    test: options.testFramework === 'vitest' ? 'vitest' : 'jest',
-    ...(options.testFramework === 'jest' && {
-      'test:watch': 'jest --watchAll',
-    }),
+  pkg.devDependencies = {
+    ...pkg.devDependencies,
+    ...dependencies,
   };
 
   return JSON.stringify(pkg, null, 2) + '\n';

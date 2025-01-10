@@ -1,17 +1,17 @@
-import path from 'node:path';
-import fs from 'node:fs';
-import { cwd, __dirname } from './constants.js';
-import { ProjectConfig } from '../interfaces/index.js';
-import { createPackageJson } from './utils.js';
+import path from "node:path";
+import fs from "node:fs";
+import { cwd, __dirname } from "./constants.js";
+import { ProjectConfig } from "../interfaces/index.js";
+import { createPackageJson } from "./utils.js";
 
 export const createApp = (opts: ProjectConfig) => {
   const { framework, language, nameApp, testFramework } = opts;
   const targetDir = path.join(cwd, nameApp);
   const templateDir = path.resolve(
     __dirname,
-    '..',
-    '..',
-    `templates/${framework}-${language}`
+    "..",
+    "..",
+    `templates/${framework}-${language}`,
   );
 
   if (!fs.existsSync(templateDir)) {
@@ -21,9 +21,9 @@ export const createApp = (opts: ProjectConfig) => {
   initTargetDir(targetDir);
 
   const renameFiles: Record<string, string> = {
-    _gitignore: '.gitignore',
-    _env: '.env',
-    '_eslint.config.js': 'eslint.config.js',
+    _gitignore: ".gitignore",
+    _env: ".env",
+    "_eslint.config.js": "eslint.config.js",
   };
 
   const renameFile = (file: string) => renameFiles[file] ?? file;
@@ -42,11 +42,11 @@ export const createApp = (opts: ProjectConfig) => {
   };
 
   const files = fs.readdirSync(templateDir);
-  for (const file of files.filter((f) => f !== 'package.json')) {
+  for (const file of files.filter((f) => f !== "package.json")) {
     write(file);
   }
 
-  write('package.json', createPackageJson(templateDir, opts));
+  write("package.json", createPackageJson(templateDir, opts));
 };
 
 function initTargetDir(dir: string): void {
