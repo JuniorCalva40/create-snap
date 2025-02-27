@@ -5,7 +5,7 @@
     "create-snap": "index.js"
   },
   "type": "module",
-  "description": "A CLI tool for quickly creating modern Node.js projects using frameworks like Express and Fastify.",
+  "description": "A CLI tool for quickly creating modern Node.js projects using frameworks like Express, Fastify and Hono.",
   "directories": {
     "doc": "docs",
     "example": "examples"
@@ -26,12 +26,14 @@
   "author": "Junior Calva",
   "license": "MIT",
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/prompts": "^2.4.9",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
+    "fs-extra": "^11.3.0",
     "minimist": "^1.2.8",
     "picocolors": "^1.1.1"
   }

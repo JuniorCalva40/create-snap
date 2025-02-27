@@ -1,19 +1,23 @@
 //Options Available
-type Framework = 'express' | 'fastify' | 'koa';
-type TestFramework = 'jest' | 'vitest' | 'none';
-type Language = 'ts' | 'js';
+export type Framework = 'express' | 'fastify' | 'hono';
+export type TestFramework = 'jest' | 'vitest' | 'node-test' | 'none';
+export type Language = 'ts' | 'js';
+export type AdditionalFeatures =
+  | 'none'
+  | 'eslint'
+  | 'eslint-prettier'
+  | 'biome';
 
 export interface ProjectConfig {
   nameApp: string;
+  language: Language;
   framework: Framework;
   testFramework: TestFramework;
-  language: Language;
+  additionalFeatures: AdditionalFeatures;
 }
 
 export interface PackageJson {
   name: string;
-  version: string;
-  description?: string;
   type: string;
   scripts: Record<string, string>;
   dependencies: Record<string, string>;
