@@ -1,108 +1,167 @@
 import colors from 'picocolors';
-import { cancel, group, intro, outro, select, text } from '@clack/prompts';
-import { TITLE } from './helpers/constants.js';
-import { createApp } from './helpers/createApp.js';
-const { white, bgBlue, gray, green, yellow } = colors;
+import { cancel, group, intro, outro, select, text, spinner, } from '@clack/prompts';
+import { createApp } from './utils/createApp.js';
+const { white, bgBlue, green, gray, whiteBright, yellow, yellowBright, blueBright, magentaBright, } = colors;
 const Frameworks = [
-  {
-    value: 'express',
-    label: 'Express',
-    color: white,
-  },
-  {
-    value: 'fastify',
-    label: 'Fastify',
-    color: white,
-  },
-  {
-    value: 'koa',
-    label: 'Koa',
-    color: white,
-  },
-];
-const FrameworksTest = [
-  {
-    value: 'vitest',
-    label: 'Vitest',
-    color: yellow,
-  },
-  {
-    value: 'jest',
-    label: 'Jest',
-    color: green,
-  },
-  {
-    value: 'ava',
-    label: 'Ava',
-    color: white,
-  },
-  {
-    value: 'none',
-    label: 'None',
-    color: gray,
-  },
-];
-const init = async () => {
-  intro(bgBlue(TITLE));
-  const { nameApp, language, framework, testFramework } = await group(
     {
-      nameApp: () =>
-        text({
-          message: 'What is the name of your app?',
-          placeholder: 'my-app',
-          validate(value) {
-            if (value.length === 0) return 'Please enter a name for your app.';
-          },
-        }),
-      framework: ({ results }) =>
-        select({
-          message: 'Select a framework: ',
-          options: Frameworks.map((f) => {
-            return {
-              value: f.value,
-              label: f.color(f.label),
-            };
-          }),
-        }),
-      language: ({ results }) =>
-        select({
-          message: 'Select your language:',
-          options: [
-            {
-              value: 'ts',
-              label: 'TypeScript',
-            },
-            {
-              value: 'js',
-              label: 'JavaScript',
-            },
-          ],
-        }),
-      testFramework: ({ results }) =>
-        select({
-          message: 'Pick a framework for Test .',
-          options: FrameworksTest.map((f) => {
-            return {
-              value: f.value,
-              label: f.color(f.label),
-            };
-          }),
-        }),
+        value: 'express',
+        label: 'Express',
+        color: whiteBright,
+        hint: 'Fast, unopinionated, minimalist web framework',
     },
     {
-      onCancel: () => {
-        cancel('Operation cancelled.');
-        process.exit(0);
-      },
+        value: 'fastify',
+        label: 'Fastify',
+        color: white,
+        hint: 'High performance web framework',
+    },
+    {
+        value: 'hono',
+        label: 'Hono',
+        color: yellowBright,
+        hint: 'Ultrafast web framework for the Edges',
+    },
+];
+const FrameworksTest = [
+    {
+        value: 'vitest',
+        label: 'Vitest',
+        color: yellow,
+        hint: 'Next generation testing framework',
+    },
+    {
+        value: 'jest',
+        label: 'Jest',
+        color: green,
+        hint: 'Popular testing framework with built-in assertions',
+    },
+    {
+        value: 'node-test',
+        label: 'Node Test Runner',
+        color: green,
+        hint: 'Built-in test runner for Node.js',
+    },
+    {
+        value: 'none',
+        label: 'None',
+        color: gray,
+        hint: 'Skip testing setup',
+    },
+];
+const AdditionalFeaturesList = [
+    {
+        value: 'eslint',
+        label: 'ESLint',
+        hint: 'Code linting only',
+        color: yellowBright,
+    },
+    {
+        value: 'eslint-prettier',
+        label: 'ESLint + Prettier',
+        hint: 'Code linting and formatting',
+        color: magentaBright,
+    },
+    {
+        value: 'biome',
+        label: 'Biome',
+        color: blueBright,
+        hint: 'All-in-one formatter and linter',
+    },
+    {
+        value: 'none',
+        label: 'None',
+        color: gray,
+        hint: 'Skip linting and formatting setup',
+    },
+];
+const validateProjectName = (value) => {
+    if (value.length === 0)
+        return 'Please enter a name for your project.';
+    if (value.length > 214)
+        return 'Project name is too long.';
+    if (!/^[a-z0-9-]+$/.test(value)) {
+        return 'Project name can only contain lowercase letters, numbers, and hyphens.';
     }
-  );
-  const config = {
-    nameApp,
-    language: language,
-    framework: framework,
-    testFramework: testFramework,
-  };
-  createApp(config);
-  outro(bgBlue(` You're all set! :) `));
+    if (value.startsWith('.') || value.startsWith('_')) {
+        return 'Project name cannot start with a dot or underscore.';
+    }
 };
-init();
+const init = async () => {
+    console.clear();
+    intro(bgBlue(` 🚀 Welcome to the Node.js Project Generator `));
+    try {
+        const { nameApp, language, framework, testFramework, additionalFeatures } = await group({
+            nameApp: () => text({
+                message: 'What is the name of your project?',
+                placeholder: 'my-awesome-app',
+                validate: validateProjectName,
+            }),
+            framework: ({ results }) => select({
+                message: 'Select a framework:',
+                options: Frameworks.map((f) => ({
+                    value: f.value,
+                    label: f.color(f.label),
+                    hint: f.hint,
+                })),
+            }),
+            language: ({ results }) => select({
+                message: 'Select a language:',
+                options: [
+                    {
+                        value: 'ts',
+                        label: 'TypeScript',
+                        hint: 'Static type checking',
+                    },
+                    { value: 'js', label: 'JavaScript', hint: 'Dynamic typing' },
+                ],
+            }),
+            testFramework: ({ results }) => select({
+                message: 'Select a testing framework:',
+                options: FrameworksTest.map((f) => ({
+                    value: f.value,
+                    label: f.color(f.label),
+                    hint: f.hint,
+                })),
+            }),
+            additionalFeatures: ({ results }) => select({
+                message: 'Select additional features:',
+                options: AdditionalFeaturesList.map((f) => ({
+                    value: f.value,
+                    label: f.color(f.label),
+                    hint: f.hint,
+                })),
+            }),
+        }, {
+            onCancel: () => {
+                cancel('Operation cancelled.');
+                process.exit(0);
+            },
+        });
+        const config = {
+            nameApp,
+            language: language,
+            framework: framework,
+            testFramework: testFramework,
+            additionalFeatures: additionalFeatures,
+        };
+        const s = spinner();
+        s.start('Creating your project...');
+        await createApp(config);
+        s.stop('Project created successfully! 🎉');
+        outro(`
+      ${bgBlue(` Next steps: `)}
+      
+      ${green('1.')} cd ${config.nameApp}
+      ${green('2.')} npm install
+      ${green('3.')} npm run dev
+      
+      ${yellow('Happy coding! 🚀')}
+    `);
+    }
+    catch (error) {
+        cancel('An error occurred while creating your project.');
+        console.error(error);
+        process.exit(1);
+    }
+};
+init().catch(console.error);

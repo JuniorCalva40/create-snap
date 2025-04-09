@@ -23,6 +23,7 @@ export const createApp = async ({
     framework,
     language
   );
+
   const testDir = path.resolve(
     __dirname,
     '..',
@@ -44,18 +45,20 @@ export const createApp = async ({
     language
   );
 
-  if (!fs.existsSync(templateDir)) {
-    throw new Error(`Template not found: ${templateDir}`);
-  }
+  console.log(templateDir, testDir, additionalFeaturesDir);
 
-  initTargetDir(targetDir);
-  const templatePaths = [templateDir, testDir, additionalFeaturesDir];
+  // if (!fs.existsSync(templateDir)) {
+  //   throw new Error(`Template not found: ${templateDir}`);
+  // }
 
-  mergePackageJson(nameApp, targetDir, templatePaths);
+  // initTargetDir(targetDir);
+  // const templatePaths = [templateDir, testDir, additionalFeaturesDir];
 
-  copyTemplateFiles(templatePaths, targetDir);
+  // mergePackageJson(nameApp, targetDir, templatePaths);
 
-  renameSpecialFiles(targetDir);
+  // copyTemplateFiles(templatePaths, targetDir);
+
+  // renameSpecialFiles(targetDir);
 
   console.log('\n✅ Project created successfully! 🎉\n');
   console.log('Next steps:');
