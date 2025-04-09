@@ -1,7 +1,6 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { PackageJson, ProjectConfig } from '../interfaces/index.js';
-import { confirm } from '@clack/prompts';
 
 export const createApp = async ({
   nameApp,
@@ -12,9 +11,9 @@ export const createApp = async ({
 }: ProjectConfig) => {
   const cwd = process.cwd();
   const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
   const targetDir = path.join(cwd, nameApp);
 
+  //We get all paths templates and config
   const templateDir = path.resolve(
     __dirname,
     '..',
@@ -23,7 +22,6 @@ export const createApp = async ({
     framework,
     language
   );
-
   const testDir = path.resolve(
     __dirname,
     '..',
@@ -45,20 +43,19 @@ export const createApp = async ({
     language
   );
 
-  console.log(templateDir, testDir, additionalFeaturesDir);
+  if (!fs.existsSync(templateDir)) {
+    throw new Error(`Template not found: ${templateDir}`);
+  }
 
-  // if (!fs.existsSync(templateDir)) {
-  //   throw new Error(`Template not found: ${templateDir}`);
-  // }
+  initTargetDir(targetDir);
 
-  // initTargetDir(targetDir);
-  // const templatePaths = [templateDir, testDir, additionalFeaturesDir];
+  const templatePaths = [templateDir, testDir, additionalFeaturesDir];
 
-  // mergePackageJson(nameApp, targetDir, templatePaths);
+  mergePackageJson(nameApp, targetDir, templatePaths);
 
-  // copyTemplateFiles(templatePaths, targetDir);
+  copyTemplateFiles(templatePaths, targetDir);
 
-  // renameSpecialFiles(targetDir);
+  renameSpecialFiles(targetDir);
 
   console.log('\n✅ Project created successfully! 🎉\n');
   console.log('Next steps:');
@@ -130,8 +127,8 @@ function copyTemplateFiles(templatePaths: string[], targetDir: string) {
   templatePaths.forEach((templatePath) => {
     if (fs.existsSync(templatePath)) {
       fs.copySync(templatePath, targetDir, {
-        overwrite: false, // No sobrescribe archivos existentes (ej. package.json)
-        filter: (src) => path.basename(src) !== 'package.json', // Evita copiar package.json
+        overwrite: false,
+        filter: (src) => path.basename(src) !== 'package.json',
       });
     }
   });

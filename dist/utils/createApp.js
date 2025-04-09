@@ -8,6 +8,14 @@ export const createApp = async ({ nameApp, framework, language, testFramework, a
     const testDir = path.resolve(__dirname, '..', '..', 'templates', 'config', 'test-runner', testFramework, language);
     const additionalFeaturesDir = path.resolve(__dirname, '..', '..', 'templates', 'config', 'linters-formatters', additionalFeatures, language);
     console.log(templateDir, testDir, additionalFeaturesDir);
+    if (!fs.existsSync(templateDir)) {
+        throw new Error(`Template not found: ${templateDir}`);
+    }
+    initTargetDir(targetDir);
+    const templatePaths = [templateDir, testDir, additionalFeaturesDir];
+    mergePackageJson(nameApp, targetDir, templatePaths);
+    copyTemplateFiles(templatePaths, targetDir);
+    renameSpecialFiles(targetDir);
     console.log('\n✅ Project created successfully! 🎉\n');
     console.log('Next steps:');
     console.log(`1. cd ${nameApp}`);
